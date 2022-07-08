@@ -1,0 +1,15 @@
+name: pyhelios
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - pip
+  - gdal
+  - polyscope
+  - matplotlib
+  - geopandas
+  - numpy
+  - xmlschema
+  - pip:
+    - open3d

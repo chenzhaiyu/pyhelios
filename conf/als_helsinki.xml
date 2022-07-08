@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<document>
+	<platformSettings id="platform1" movePerSec_m="30" />
+    <scannerSettings active="true" id="scanner1" pulseFreq_hz="1200000" scanAngle_deg="10.0" scanFreq_hz="200" trajectoryTimeInterval_s="0.01"/>
+    <survey name="helsinki_als" platform="data/platforms.xml#sr22" scanner="data/scanners_als.xml#riegl_vq-880g" scene="data/scenes/helsinki/helsinki_scene.xml#helsinki_scene">
+	<!-- platform: plane, deflector: conic -->
+		<leg>
+			<platformSettings x="-200.0" y="-50.0" z="500.0" onGround="false" template="platform1"/>
+			<scannerSettings template="scanner1" />
+		</leg>
+		<leg>
+			<platformSettings x="100.0" y="-50.0" z="500.0" onGround="false" template="platform1"/>
+			<scannerSettings template="scanner1" />
+		</leg>
+
+	</survey>
+</document>
