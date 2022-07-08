@@ -156,6 +156,7 @@ data/
 
 # helios binary
 bin/
+*.scene
 
 # Hydra output
 outputs/
