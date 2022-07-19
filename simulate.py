@@ -80,11 +80,11 @@ def simulate():
 
     # acquire simulated data
     output = sim.join()
-    measurements_array, trajectory_array = pyhelios.outputToNumpy(output)
+    # measurements_array, trajectory_array = pyhelios.outputToNumpy(output)
 
     # may need to modify line 37 in pyhelios\output_handling
     # to generate hitObjectId for separating objects
-    assert len(measurements_array[0]) == 17
+    # assert len(measurements_array[0]) == 17
 
 
 if __name__ == '__main__':
