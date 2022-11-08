@@ -30,7 +30,7 @@ def simulate():
     filenames = glob.glob('data/helsinki/model_base/*.obj')
     records = [
         xml_part(xml_filter(xml_param(type="string", key="filepath", value=filename), xml_param(type="string", key="up", value="z"), type="objloader"),
-                 xml_filter(xml_param(type="double", key="scale", value="500"), type="scale"),
+                 xml_filter(xml_param(type="double", key="scale", value="1000"), type="scale"),
                  xml_filter(xml_param(type="vec3", key="offset", value="0;0;0"), type="translate"), id=str(i)) for
         i, filename in enumerate(filenames)]
 
