@@ -160,3 +160,7 @@ bin/
 
 # Hydra output
 outputs/
+
+# generated scene and XML
+conf/helsinki_scene.scene
+conf/helsinki_scene.xml

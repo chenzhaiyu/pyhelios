@@ -5,11 +5,11 @@
     <survey name="helsinki_als" platform="conf/platforms.xml#sr22" scanner="conf/scanners_als.xml#riegl_vq-880g" scene="conf/helsinki_scene.xml#helsinki_scene">
 	<!-- platform: plane, deflector: conic -->
 		<leg>
-			<platformSettings x="50.0" y="-200.0" z="500.0" onGround="false" template="platform1"/>
+			<platformSettings x="50.0" y="-200.0" z="1500.0" onGround="false" template="platform1"/>
 			<scannerSettings template="scanner1" />
 		</leg>
 		<leg>
-			<platformSettings x="50.0" y="200.0" z="500.0" onGround="false" template="platform1"/>
+			<platformSettings x="50.0" y="200.0" z="1500.0" onGround="false" template="platform1"/>
 			<scannerSettings template="scanner1" />
 		</leg>
 
