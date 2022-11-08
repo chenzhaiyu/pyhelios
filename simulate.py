@@ -1,3 +1,7 @@
+"""
+Simulating point clouds with Helios++.
+"""
+
 import glob
 
 import lxml.etree
@@ -23,11 +27,11 @@ def simulate():
     xml_part = xml_element.part
     xml_filter = xml_element.filter
     xml_param = xml_element.param
-    filenames = glob.glob('data/helsinki/*.obj')
+    filenames = glob.glob('data/helsinki/model_base/*.obj')
     records = [
-        xml_part(xml_filter(xml_param(type="string", key="filepath", value=filename), type="objloader"),
-                 xml_filter(xml_param(type="double", key="scale", value="100"), type="scale"),
-                 xml_filter(xml_param(type="vec3", key="offset", value="0;0;20.0"), type="translate"), id=str(i)) for
+        xml_part(xml_filter(xml_param(type="string", key="filepath", value=filename), xml_param(type="string", key="up", value="z"), type="objloader"),
+                 xml_filter(xml_param(type="double", key="scale", value="1"), type="scale"),
+                 xml_filter(xml_param(type="vec3", key="offset", value="0;0;0"), type="translate"), id=str(i)) for
         i, filename in enumerate(filenames)]
 
     xml_tree = xml_document(
@@ -70,7 +74,7 @@ def simulate():
     sim.start()
 
     if sim.isStarted():
-        print('Simulation is started!')
+        print('Simulation has started!')
 
     while sim.isRunning():
         pass
