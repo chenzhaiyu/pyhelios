@@ -10,8 +10,8 @@ import laspy
 import trimesh
 from tqdm import trange
 
-filename_laz = 'outputs/Survey Playback/helsinki_als/2022-11-07_13-27-05/points/leg000_point.laz'
-num_objects = 768
+filename_laz = 'outputs/Survey Playback/helsinki_als/2022-11-09_18-33-26/points/stripmission_point.laz'
+num_objects = 760
 
 
 def normalise(mesh, translation, scale_trafo):
@@ -42,7 +42,7 @@ def translation_and_scale(mesh):
 if __name__ == '__main__':
 
     # warning: listing by glob.glob() is with arbitrary order and is OS-specific
-    filenames = glob.glob('data/helsinki/model_base/*.obj')
+    filenames = glob.glob('data/helsinki/mesh_base/*.obj')
 
     with laspy.open(filename_laz) as fh:
         print('Points from Header:', fh.header.point_count)
@@ -53,16 +53,21 @@ if __name__ == '__main__':
         for i in trange(num_objects):
             # load point cloud and mesh
             filename_base = Path(filenames[i])
-            filename_mesh = (filename_base.parent.parent / 'model_normalised' / filename_base.stem).with_suffix('.obj')
-            filename_pts = (filename_base.parent.parent / 'points_normalised' / filename_base.stem).with_suffix('.ply')
+            filename_mesh = (filename_base.parent.parent / 'mesh_normalised' / filename_base.stem).with_suffix('.obj')
+            filename_pts = (filename_base.parent.parent / 'cloud_normalised' / filename_base.stem).with_suffix('.ply')
 
             pts = las.hitObjectId == i
+            # assert np.any(pts)  # every building is scaned
+            if not np.any(pts):
+                print(f'missing {filenames[i]}')
             pts = trimesh.PointCloud(las.xyz[pts])
+            pts_scale_trafo = trimesh.transformations.scale_matrix(factor=1 / 1000)
+            pts.apply_transform(pts_scale_trafo)  # size_cloud == 1000 * size_mesh_base
             mesh = trimesh.load(filename_base)
 
             # normalise
             translation, scale_trafo = translation_and_scale(mesh)
-            mesh = normalise(mesh, translation, scale_trafo)
+            mesh = normalise(mesh, translation, scale_trafo)  # as-is normalised
             pts = normalise(pts, translation, scale_trafo)
 
             # save data
