@@ -14,7 +14,7 @@ offset: 0;0;0
 # hydra settings
 hydra:
   run:
-    dir: '${root_dir}/outputs'
+    dir: '${output_dir}'
   verbose: false
 defaults:
   - override hydra/job_logging: colorlog
