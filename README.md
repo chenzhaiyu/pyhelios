@@ -1,7 +1,11 @@
-# Helios++
+# Helios++ Python
 
-Helios++ configuration for point cloud simulation on buildings.
+Python caller of Helios++ for point cloud simulation on buildings.
 
 ## Prerequisite
+* Download one of the [Helios++ binaries](https://github.com/3dgeo-heidelberg/helios/releases) and extract it to the `./bin` directory. Change `import pyhelios` to `from bin import pyhelios` in `./bin/pyhelios/simulation_build.py` if applicable.
+* Install dependencies with `pip install -r requirements.txt`.
 
-Download one of the [Helios++ binaries](https://github.com/3dgeo-heidelberg/helios/releases) and extract it to the `./bin` directory. Probably change `import pyhelios` to `from bin import pyhelios` in `./bin/pyhelios/simulation_build.py`
+## Usage
+* `python simulate.py`: run simulation on the scene specified in `conf/config.yaml`.
+* `python normalise.py`: apply normalisation to point clouds and corresponding meshes (optional).

@@ -2,20 +2,27 @@
 Simulating point clouds with Helios++.
 """
 
+import os
 import glob
 
 import lxml.etree
 import lxml.builder
+import hydra
+from omegaconf import DictConfig
 
 from bin import pyhelios
 
 
-def simulate():
+@hydra.main(config_path='./conf', config_name='config', version_base='1.2')
+def simulate(cfg: DictConfig):
+    """
+    Simulate point cloud given scene.
+    """
     # set logging
     pyhelios.loggingDefault()
 
     # set seed for default random number generator.
-    pyhelios.setDefaultRandomnessGeneratorSeed("123")
+    pyhelios.setDefaultRandomnessGeneratorSeed(f"{cfg.seed}")
 
     # print current helios version
     print(f'helios version: {pyhelios.getVersion()}')
@@ -27,15 +34,16 @@ def simulate():
     xml_part = xml_element.part
     xml_filter = xml_element.filter
     xml_param = xml_element.param
-    filenames = glob.glob('data/helsinki/mesh_base/*.obj')
+    filenames = glob.glob(f'{os.path.join(cfg.input_dir, "*" + cfg.object_suffix)}')
     records = [
-        xml_part(xml_filter(xml_param(type="string", key="filepath", value=filename), xml_param(type="string", key="up", value="z"), type="objloader"),
-                 xml_filter(xml_param(type="double", key="scale", value="1000"), type="scale"),
-                 xml_filter(xml_param(type="vec3", key="offset", value="0;0;0"), type="translate"), id=str(i)) for
-        i, filename in enumerate(filenames)]
+        xml_part(xml_filter(xml_param(type="string", key="filepath", value=filename),
+                            xml_param(type="string", key="up", value="z"), type="objloader"),
+                 xml_filter(xml_param(type="double", key="scale", value=f"{cfg.scale}"), type="scale"),
+                 xml_filter(xml_param(type="vec3", key="offset", value=f"{cfg.offset}"), type="translate"), id=str(i))
+        for i, filename in enumerate(filenames)]
 
     xml_tree = xml_document(
-        xml_scene(id="helsinki_scene", name="HelsinkiScene",
+        xml_scene(id=f"{cfg.dataset_name}_scene", name=f"{cfg.dataset_name.capitalize()}Scene",
                   *records
                   )
     )
@@ -43,33 +51,25 @@ def simulate():
     # write out xml
     header_str = b'<?xml version="1.0" encoding="UTF-8"?>\n'
     xml_str = lxml.etree.tostring(xml_tree, pretty_print=True)
-    with open('conf/helsinki_scene.xml', 'wb') as f:
+    with open(f'conf/{cfg.dataset_name}_scene.xml', 'wb') as f:
         f.write(header_str)
         f.write(xml_str)
 
     # build simulation parameters
-    simBuilder = pyhelios.SimulationBuilder(
-        'conf/als_helsinki.xml',
+    sim_builder = pyhelios.SimulationBuilder(
+        f'conf/als_{cfg.dataset_name}.xml',
         'bin/assets/',
         'outputs/',
     )
 
-    # --- does not work ---
-    # # scale and translate objects
-    # s = 100.0  # scale by factor 100
-    # t = [0, 0, 20.0]  # translate upwards
-    # for i in range(len(filenames)):
-    #     simBuilder.addTranslateFilter(t[0], t[1], t[2], str(i))
-    #     simBuilder.addScaleFilter(s, str(i))
-
-    simBuilder.setNumThreads(6)
-    simBuilder.setLasOutput(True)
-    simBuilder.setZipOutput(True)
-    simBuilder.setCallbackFrequency(0)  # run without callback
-    simBuilder.setFinalOutput(True)  # return output at join
-    simBuilder.setExportToFile(True)  # disable export pointcloud to file
-    simBuilder.setRebuildScene(False)
-    sim = simBuilder.build()
+    sim_builder.setNumThreads(6)
+    sim_builder.setLasOutput(True)
+    sim_builder.setZipOutput(True)
+    sim_builder.setCallbackFrequency(0)  # run with callback
+    sim_builder.setFinalOutput(False)    # return output at join
+    sim_builder.setExportToFile(True)    # export point cloud to file
+    sim_builder.setRebuildScene(False)
+    sim = sim_builder.build()
 
     sim.start()
 
@@ -83,12 +83,7 @@ def simulate():
         print('Simulation has finished.')
 
     # acquire simulated data
-    output = sim.join()
-    # measurements_array, trajectory_array = pyhelios.outputToNumpy(output)
-
-    # may need to modify line 37 in pyhelios\output_handling
-    # to generate hitObjectId for separating objects
-    # assert len(measurements_array[0]) == 17
+    sim.join()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,21 @@
+# directories and paths
+root_dir: '${hydra:runtime.cwd}'
+dataset_name: 'munich'
+input_dir: '${root_dir}/data/${dataset_name}/instances/'
+output_dir: '${root_dir}/outputs/${dataset_name}/'
+object_suffix: '.obj'
+cloud_filename: '${output_dir}/stripmission_point.laz'
+
+# simulation settings
+seed: 1117
+scale: 1  # 1000 for helsinki
+offset: 0;0;0
+
+# hydra settings
+hydra:
+  run:
+    dir: '${root_dir}/outputs'
+  verbose: false
+defaults:
+  - override hydra/job_logging: colorlog
+  - override hydra/hydra_logging: colorlog

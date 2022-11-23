@@ -8,21 +8,23 @@ import glob
 import numpy as np
 import laspy
 import trimesh
-from tqdm import trange
+import hydra
+from omegaconf import DictConfig
+from tqdm import tqdm
 
-filename_laz = 'outputs/Survey Playback/helsinki_als/2022-11-09_18-33-26/points/stripmission_point.laz'
-num_objects = 760
 
-
-def normalise(mesh, translation, scale_trafo):
+def apply_transform(mesh, translation, scale_trafo):
+    """
+    Apply transform.
+    """
     mesh.apply_transform(translation)
     mesh.apply_transform(scale_trafo)
     return mesh
 
 
-def translation_and_scale(mesh):
+def get_transform(mesh):
     """
-    Translation and scale to normalise mesh and point cloud.
+    Get transform.
     """
     bounds = mesh.extents
     if bounds.min() == 0.0:
@@ -39,38 +41,44 @@ def translation_and_scale(mesh):
     return translation, scale_trafo
 
 
-if __name__ == '__main__':
-
-    # warning: listing by glob.glob() is with arbitrary order and is OS-specific
+@hydra.main(config_path='./conf', config_name='config', version_base='1.2')
+def normalise(cfg: DictConfig):
+    """
+    Normalise point clouds and corresponding meshes.
+    """
+    # listing by glob.glob() is with arbitrary order and is OS-specific
     filenames = glob.glob('data/helsinki/mesh_base/*.obj')
 
-    with laspy.open(filename_laz) as fh:
+    with laspy.open(cfg.cloud_filename) as fh:
         print('Points from Header:', fh.header.point_count)
         las = fh.read()
         print(las)
         print('Points from data:', len(las.points))
 
-        for i in trange(num_objects):
+        for i, filename in enumerate(tqdm(filenames)):
             # load point cloud and mesh
-            filename_base = Path(filenames[i])
+            filename_base = Path(filename)
             filename_mesh = (filename_base.parent.parent / 'mesh_normalised' / filename_base.stem).with_suffix('.obj')
-            filename_pts = (filename_base.parent.parent / 'cloud_normalised' / filename_base.stem).with_suffix('.ply')
+            filename_pts = (filename_base.parent.parent / 'cloud_normalised' / filename_base.stem).with_suffix('.npy')
 
             pts = las.hitObjectId == i
-            # assert np.any(pts)  # every building is scaned
             if not np.any(pts):
-                print(f'missing {filenames[i]}')
+                print(f'missing {filename}')
+
             pts = trimesh.PointCloud(las.xyz[pts])
-            pts_scale_trafo = trimesh.transformations.scale_matrix(factor=1 / 1000)
-            pts.apply_transform(pts_scale_trafo)  # size_cloud == 1000 * size_mesh_base
+            pts_scale_trafo = trimesh.transformations.scale_matrix(factor=1 / cfg.scale)
+            pts.apply_transform(pts_scale_trafo)
             mesh = trimesh.load(filename_base)
 
             # normalise
-            translation, scale_trafo = translation_and_scale(mesh)
-            mesh = normalise(mesh, translation, scale_trafo)  # as-is normalised
-            pts = normalise(pts, translation, scale_trafo)
+            translation, scale_trafo = get_transform(mesh)
+            mesh = apply_transform(mesh, translation, scale_trafo)  # as-is normalised
+            pts = apply_transform(pts, translation, scale_trafo)
 
             # save data
-            mesh.export(filename_mesh)  # ply/obj
-            # np.save(filename_pts, pts.vertices)  # npy
-            pts.export(filename_pts)
+            mesh.export(filename_mesh)
+            np.save(str(filename_pts), pts.vertices)
+
+
+if __name__ == '__main__':
+    normalise()
