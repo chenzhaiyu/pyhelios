@@ -1,4 +1,4 @@
-Set `BOOST_ROOT` in `cmake/CMakePybinds.cmake`:
+* Set `BOOST_ROOT` in `cmake/CMakePybinds.cmake`:
 ```cmake
 # ---  PYTHON BINDINGS  --- #
 # ------------------------- #
@@ -23,4 +23,15 @@ if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     message("Boost_LIBRARIES: " ${Boost_LIBRARIES})
 endif()
+```
+
+* Set `GLM_ENABLE_EXPERIMENTAL`:
+
+This is to address the error:
+```
+error: #error "GLM: GLM_GTX_hash is an experimental extension and may change in the future. Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to use it."
+```
+Add the following line to `CMakeList.txt`
+```cmake
+add_definitions(-D GLM_ENABLE_EXPERIMENTAL)
 ```
