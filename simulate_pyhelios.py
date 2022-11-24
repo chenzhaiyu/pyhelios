@@ -33,7 +33,7 @@ def simulate(cfg: DictConfig):
         'outputs/',
     )
 
-    sim_builder.setNumThreads(6)
+    sim_builder.setNumThreads(cfg.threads)
     sim_builder.setLasOutput(True)
     sim_builder.setZipOutput(True)
     sim_builder.setCallbackFrequency(0)  # run with callback

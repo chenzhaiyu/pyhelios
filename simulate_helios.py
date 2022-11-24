@@ -58,11 +58,11 @@ def simulate(cfg: DictConfig):
     if cfg.quiet:
         subprocess.run(
             [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
-             f'--seed {cfg.seed}'], shell=True, stdout=subprocess.DEVNULL)
+             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True, stdout=subprocess.DEVNULL)
     else:
         subprocess.run(
             [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
-             f'--seed {cfg.seed}'], shell=True)
+             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True)
 
 
 if __name__ == '__main__':

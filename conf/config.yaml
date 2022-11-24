@@ -9,6 +9,7 @@ cloud_filename: '${output_dir}/stripmission_point.laz'
 
 # simulation settings
 seed: 1117
+threads: 6
 scale: 1  # 1000 for helsinki
 offset: 0;0;0
 quiet: false
