@@ -15,3 +15,10 @@ dependencies:
     - open3d
     - laspy
     - trimesh
+    - hydra-core
+    - hydra-colorlog
+    - omegaconf
+    - laspy
+    - tqdm
+    - scipy
+    - lxml
