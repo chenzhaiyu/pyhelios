@@ -47,7 +47,7 @@ def normalise(cfg: DictConfig):
     Normalise point clouds and corresponding meshes.
     """
     # listing by glob.glob() is with arbitrary order and is OS-specific
-    filenames = glob.glob('data/helsinki/mesh_base/*.obj')
+    filenames = glob.glob(f'{os.path.join(cfg.input_dir, "*" + cfg.object_suffix)}')
 
     with laspy.open(cfg.cloud_filename) as fh:
         print('Points from Header:', fh.header.point_count)
