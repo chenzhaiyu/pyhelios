@@ -69,7 +69,7 @@ sudo make install
 * Fix `ogr_geometry`
 
 This is to address the following error:
-```
+```bash
 /workspace/envs/helios/src/assetloading/ScenePart.h:13:10: fatal error: ogr_geometry.h: No such file or directory
  #include <ogr_geometry.h>
           ^~~~~~~~~~~~~~~~
@@ -77,7 +77,7 @@ compilation terminated.
 ```
 
 `libgdal-dev` requires `libarmadillo-dev (1:8.400.0+dfsg-2)`, while `libarmadillo-dev (1:8.400.0+dfsg-2)` is not compatibale in Helios++. One needs to build GDAL from source:
-```
+```bash
 # https://gdal.org/development/dev_environment.html
 # https://gdal.org/download.html#current-release (tested with 3.5.1)
 cd gdal-3.5.1
@@ -109,4 +109,50 @@ endif()
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 message("Armadillo include: " ${ARMADILLO_INCLUDE_DIRS})
 message("Armadillo libraries: " ${ARMADILLO_LIBRARIES})
+```
+
+* Export `LDFLAGS`
+
+This is to address the linking error:
+```bash
+[100%] Linking CXX executable helios
+/usr/bin/ld: CMakeFiles/helios.dir/src/maths/rigidmotion/RigidMotionR3Factory.cpp.o: undefined reference to symbol 'ddot_'
+//usr/lib/x86_64-linux-gnu/libblas.so.3: error adding symbols: DSO missing from command line
+collect2: error: ld returned 1 exit status
+CMakeFiles/helios.dir/build.make:2491: recipe for target 'helios' failed
+```
+
+Execute the following line:
+```bash
+# https://zhangboyi.gitlab.io/post/2020-09-14-resolve-dso-missing-from-command-line-error/
+export LDFLAGS="-Wl,--copy-dt-needed-entries"
+```
+
+* Build the project
+```bash
+cmake .
+make -j 8
+```
+
+* Test the installation
+```bash
+(base) root@dadbd301b70b:/workspace/envs/helios# ./helios --test
+TEST Randomness generation test                           [PASSED]
+TEST Noise sources test                                   [PASSED]
+TEST Discrete time test                                   [PASSED]
+TEST Voxel parsing test                                   [PASSED]
+TEST Ray intersection test                                [PASSED]
+TEST Grove test                                           [PASSED]
+TEST Serialization test                                   [PASSED]
+TEST Asset loading test                                   [PASSED]
+TEST Survey copy test                                     [PASSED]
+TEST Plane fitter test                                    [PASSED]
+TEST LadLut test                                          [PASSED]
+TEST Platform physics test                                [PASSED]
+TEST Functional platform test                             [PASSED]
+TEST Scene part split test                                [PASSED]
+TEST Rigid motion test                                    [PASSED]
+TEST Fluxionum test                                       [PASSED]
+TEST Energy models test                                   [PASSED]
+TEST HPC test                                             [PASSED]
 ```
