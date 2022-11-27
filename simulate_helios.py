@@ -4,29 +4,18 @@ Simulating point clouds with Helios++.
 
 import os
 import glob
+import subprocess
 
 import lxml.etree
 import lxml.builder
 import hydra
 from omegaconf import DictConfig
 
-from bin import pyhelios
 
-
-@hydra.main(config_path='./conf', config_name='config', version_base='1.2')
-def simulate(cfg: DictConfig):
+def create_scene(cfg: DictConfig):
     """
-    Simulate point cloud given scene.
+    Create scene file.
     """
-    # set logging
-    pyhelios.loggingDefault()
-
-    # set seed for default random number generator.
-    pyhelios.setDefaultRandomnessGeneratorSeed(f"{cfg.seed}")
-
-    # print current helios version
-    print(f'helios version: {pyhelios.getVersion()}')
-
     # create scene XML
     xml_element = lxml.builder.ElementMaker()
     xml_document = xml_element.document
@@ -55,35 +44,25 @@ def simulate(cfg: DictConfig):
         f.write(header_str)
         f.write(xml_str)
 
-    # build simulation parameters
-    sim_builder = pyhelios.SimulationBuilder(
-        f'conf/als_{cfg.dataset_name}.xml',
-        'bin/assets/',
-        'outputs/',
-    )
 
-    sim_builder.setNumThreads(6)
-    sim_builder.setLasOutput(True)
-    sim_builder.setZipOutput(True)
-    sim_builder.setCallbackFrequency(0)  # run with callback
-    sim_builder.setFinalOutput(False)    # return output at join
-    sim_builder.setExportToFile(True)    # export point cloud to file
-    sim_builder.setRebuildScene(False)
-    sim = sim_builder.build()
+@hydra.main(config_path='./conf', config_name='config', version_base='1.2')
+def simulate(cfg: DictConfig):
+    """
+    Simulate point cloud given scene.
+    """
 
-    sim.start()
+    # create scene
+    create_scene(cfg)
 
-    if sim.isStarted():
-        print('Simulation has started!')
-
-    while sim.isRunning():
-        pass
-
-    if sim.isFinished():
-        print('Simulation has finished.')
-
-    # acquire simulated data
-    sim.join()
+    # run simulation
+    if cfg.quiet:
+        subprocess.run(
+            [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
+             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True, stdout=subprocess.DEVNULL)
+    else:
+        subprocess.run(
+            [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
+             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True)
 
 
 if __name__ == '__main__':

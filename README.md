@@ -1,6 +1,6 @@
 # Helios++ simulation
 
-Python caller and personal configurations of *[Helios++](https://www.geog.uni-heidelberg.de/gis/helios.html)* for point cloud simulation on urban buildings.
+Personal configurations of *[Helios++](https://www.geog.uni-heidelberg.de/gis/helios.html)* for point cloud simulation on urban buildings.
 
 ## Prerequisite
 * Follow the [instruction](./BUILDME.md) to build *Helios++* from source, or download one of the [binaries](https://github.com/3dgeo-heidelberg/helios/releases) and register the executable path in `conf/config.yaml`. Probably Change `import pyhelios` to `from bin import pyhelios` in `./bin/pyhelios/simulation_build.py` if applicable.

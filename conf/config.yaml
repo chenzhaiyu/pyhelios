@@ -1,15 +1,18 @@
 # directories and paths
+executable_path: 'bin/run/helios.exe'
 root_dir: '${hydra:runtime.cwd}'
-dataset_name: 'munich'
-input_dir: '${root_dir}/data/${dataset_name}/instances/'
+dataset_name: 'helsinki'
+input_dir: '${root_dir}/data/${dataset_name}/mesh_base/'
 output_dir: '${root_dir}/outputs/${dataset_name}/'
 object_suffix: '.obj'
 cloud_filename: '${output_dir}/stripmission_point.laz'
 
 # simulation settings
 seed: 1117
+threads: 6
 scale: 1  # 1000 for helsinki
 offset: 0;0;0
+quiet: false
 
 # hydra settings
 hydra:
