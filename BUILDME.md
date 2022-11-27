@@ -1,3 +1,5 @@
+Below is to supplement the official [build instruction](https://github.com/3dgeo-heidelberg/helios/blob/dev/BUILDME.md) of *Helios++*.
+
 * Set `BOOST_ROOT` in `cmake/CMakePybinds.cmake`
 ```cmake
 # ---  PYTHON BINDINGS  --- #
