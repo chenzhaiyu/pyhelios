@@ -1,17 +1,32 @@
 # directories and paths
-executable_path: 'bin/run/helios.exe'
+executable_path: '/workspace/envs/helios/helios'
 root_dir: '${hydra:runtime.cwd}'
-dataset_name: 'helsinki'
-input_dir: '${root_dir}/data/${dataset_name}/mesh_base/'
-output_dir: '${root_dir}/outputs/${dataset_name}/'
+dataset_name: 'munich'
+input_dir: '/workspace/data/munich/obj/instances_LocalCRS/'
+output_dir: '${root_dir}/outputs/${dataset_name}_als/'
 object_suffix: '.obj'
 cloud_filename: '${output_dir}/stripmission_point.laz'
 
-# simulation settings
+# survey settings
+move_speed: 20
+pulse_frequency: 550000
+scan_angle: 0
+scan_frequency: 160
+time_interval: 0.01
+platform: 'sr22'
+scanner: 'riegl_vq-880g'
+bbox_min: [-500, -500]
+bbox_max: [500, 500]
+strip_interval: 200
+flight_height: 400
+
+# scene settings
+scale: 1  # 1000 for Helsinki
+offset: 0;0;0  # Munich Global: CRS bounding box (by vertices): Min: dvec3(676042.210000, 5326481.160000, 481.400000), Max: dvec3(702063.376000, 5346739.302000, 802.890000)
+
+# runtime settings
 seed: 1117
-threads: 6
-scale: 1  # 1000 for helsinki
-offset: 0;0;0
+threads: 28
 quiet: false
 
 # hydra settings

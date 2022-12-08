@@ -7,6 +7,7 @@ Personal configurations of *[Helios++](https://www.geog.uni-heidelberg.de/gis/he
 * Create an environment with dependencies with `conda env create --file conda-environment.yml`, or update an existing environment with `conda env update --file conda-environment.yml --prune`.
 
 ## Usage
+* `conf/config.yaml`: configuration file.
 * `python simulate_helios.py`: run simulation with Helios++ CLI.
 * `python simulate_pyhelios.py`: run simulation with Helios++ Python binding.
 * `python normalise.py`: apply normalisation to point clouds and corresponding meshes (optional).

@@ -6,7 +6,7 @@ import hydra
 from omegaconf import DictConfig
 
 from bin import pyhelios
-from simulate_helios import create_scene
+from simulate_helios import create_scene, create_survey
 
 
 @hydra.main(config_path='./conf', config_name='config', version_base='1.2')
@@ -17,11 +17,14 @@ def simulate(cfg: DictConfig):
     # set logging
     pyhelios.loggingDefault()
 
-    # set seed for default random number generator.
+    # set seed for default random number generator
     pyhelios.setDefaultRandomnessGeneratorSeed(f"{cfg.seed}")
 
     # print current helios version
     print(f'helios version: {pyhelios.getVersion()}')
+
+    # create survey
+    create_survey(cfg)
 
     # create scene
     create_scene(cfg)
