@@ -1,6 +1,7 @@
 """
 Simulating point clouds with Helios++.
 """
+
 import logging
 import os
 import glob
@@ -121,20 +122,22 @@ def simulate(cfg: DictConfig):
     Simulate point cloud given scene.
     """
     # create survey
-    create_survey(cfg)
+    if cfg.create_survey:
+        create_survey(cfg)
 
     # create scene
-    create_scene(cfg)
+    if cfg.create_scene:
+        create_scene(cfg)
 
     # run simulation
     if cfg.quiet:
         subprocess.run(
             [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
-             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True, stdout=subprocess.DEVNULL)
+             f'--seed {cfg.seed} --nthreads {cfg.threads} --lasOutput --logFileOnly'], shell=True, stdout=subprocess.DEVNULL)
     else:
         subprocess.run(
             [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
-             f'--seed {cfg.seed} --nthreads {cfg.threads}'], shell=True)
+             f'--seed {cfg.seed} --nthreads {cfg.threads} --lasOutput --logFile'], shell=True)
 
 
 if __name__ == '__main__':

@@ -8,19 +8,21 @@ object_suffix: '.obj'
 cloud_filename: '${output_dir}/stripmission_point.laz'
 
 # survey settings
-move_speed: 20
-pulse_frequency: 550000
-scan_angle: 0
-scan_frequency: 160
+create_survey: true
+move_speed: 70
+pulse_frequency: 1500000
+scan_angle: 30
+scan_frequency: 150
 time_interval: 0.01
 platform: 'sr22'
-scanner: 'riegl_vq-880g'
-bbox_min: [-500, -500]
-bbox_max: [500, 500]
-strip_interval: 200
+scanner: 'leica_hyperion-ii'
+bbox_min: [1770, -705]
+bbox_max: [2050, -415]
+strip_interval: 160
 flight_height: 400
 
 # scene settings
+create_scene: false
 scale: 1  # 1000 for Helsinki
 offset: 0;0;0  # Munich Global: CRS bounding box (by vertices): Min: dvec3(676042.210000, 5326481.160000, 481.400000), Max: dvec3(702063.376000, 5346739.302000, 802.890000)
 
