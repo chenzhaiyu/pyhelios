@@ -132,11 +132,11 @@ def simulate(cfg: DictConfig):
     # run simulation
     if cfg.quiet:
         subprocess.run(
-            [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
+            [f'{cfg.helios_executable} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
              f'--seed {cfg.seed} --nthreads {cfg.threads} --lasOutput --logFileOnly'], shell=True, stdout=subprocess.DEVNULL)
     else:
         subprocess.run(
-            [f'{cfg.executable_path} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
+            [f'{cfg.helios_executable} conf/als_{cfg.dataset_name}.xml --assets ./bin/assets/ --output ./outputs/  '
              f'--seed {cfg.seed} --nthreads {cfg.threads} --lasOutput --logFile'], shell=True)
 
 

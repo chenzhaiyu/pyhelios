@@ -1,5 +1,6 @@
 # directories and paths
-executable_path: '/workspace/envs/helios/helios'
+helios_executable: '/workspace/envs/helios/helios'
+las2las_executable: '/workspace/envs/lastool/las2las64'
 root_dir: '${hydra:runtime.cwd}'
 dataset_name: 'munich'
 input_dir: '/workspace/data/munich/obj/instances_LocalCRS/'
@@ -32,6 +33,9 @@ offset: 0;0;0
 seed: 1117
 threads: 32
 quiet: false
+
+# normalisation settings
+chunk_size: 100000000
 
 # hydra settings
 hydra:

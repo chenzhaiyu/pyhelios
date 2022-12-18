@@ -3,7 +3,7 @@ Normalising simulated point clouds and corresponding meshes.
 """
 
 from pathlib import Path
-import multiprocessing
+from multiprocessing import Pool, RawArray, cpu_count
 import os
 import glob
 import logging
@@ -14,6 +14,9 @@ import trimesh
 import hydra
 from omegaconf import DictConfig
 from tqdm import tqdm
+
+# global dict storing variables passed from initializer
+var_dict = {}
 
 
 def apply_transform(mesh, translation, scale_trafo):
@@ -44,57 +47,79 @@ def get_transform(mesh):
     return translation, scale_trafo
 
 
-def normalise(kwargs):
+def normalise(args):
     """
-    Single-run normalisation.
-    kwargs: (filename_base, las)
+    Single-run normalisation with laspy.
+    args: (index, filename)
     """
-    # load point cloud and mesh
-    index, filename_base, las, scale = kwargs['index'], Path(kwargs['filename']), kwargs['las'], kwargs['scale']
-    filename_mesh = (filename_base.parent.parent / 'mesh_normalised' / filename_base.stem).with_suffix('.obj')
-    filename_pts = (filename_base.parent.parent / 'cloud_normalised' / filename_base.stem).with_suffix('.npy')
+    index, filename = args
+    objects = np.frombuffer(var_dict['objects'], dtype=np.int32) == index
 
-    pts = las.hitObjectId == index
-    if not np.any(pts):
-        print(f'missing {filename_base}')
+    if np.any(objects):
+        filename = Path(filename)
+        filename_mesh = (filename.parent.parent.parent / 'mesh_normalised' / filename.stem).with_suffix('.obj')
+        filename_pts = (filename.parent.parent.parent / 'cloud_normalised' / filename.stem).with_suffix('.npy')
 
-    pts = trimesh.PointCloud(las.xyz[pts])
-    pts_scale_trafo = trimesh.transformations.scale_matrix(factor=1 / scale)
-    pts.apply_transform(pts_scale_trafo)
-    mesh = trimesh.load(filename_base)
+        # load data
+        pts = trimesh.PointCloud(np.frombuffer(var_dict['points'], dtype=np.float64).reshape((-1, 3))[objects])
+        mesh = trimesh.load(filename)
 
-    # normalise
-    translation, scale_trafo = get_transform(mesh)
-    mesh = apply_transform(mesh, translation, scale_trafo)  # as-is normalised
-    pts = apply_transform(pts, translation, scale_trafo)
+        # normalise
+        translation, scale_trafo = get_transform(mesh)
+        mesh = apply_transform(mesh, translation, scale_trafo)  # as-is normalised
+        pts = apply_transform(pts, translation, scale_trafo)
 
-    # save data
-    mesh.export(filename_mesh)
-    np.save(str(filename_pts), pts.vertices)
+        # existing data to append points to
+        if filename_pts.exists():
+            pts_existing = np.load(str(filename_pts))
+            np.save(str(filename_pts), np.vstack((pts_existing, pts.vertices)))
+
+        else:
+            # save data
+            mesh.export(filename_mesh)
+            np.save(str(filename_pts), pts.vertices)
 
 
 @hydra.main(config_path='./conf', config_name='config', version_base='1.2')
 def normalise_multirun(cfg: DictConfig):
     """
-    Normalise point clouds and corresponding meshes.
+    Normalise point clouds and corresponding meshes with laspy and multiprocessing.
     """
     # listing by glob.glob() is with arbitrary order and is OS-specific
     filenames = glob.glob(f'{os.path.join(cfg.input_dir, "*" + cfg.object_suffix)}')
 
-    with laspy.open(cfg.cloud_filename) as fh:
-        logging.info(f'Points from Header: {fh.header.point_count}')
-        las = fh.read()
-        logging.info(f'Points from data: {len(las.points)}')
+    def init_worker(_points, _objects):
+        var_dict['points'] = _points
+        var_dict['objects'] = _objects
 
-        kwargs_list = []
-        for i, filename in enumerate(filenames):
-            kwargs_list.append({'index': i, 'filename': filename, 'las': las, 'scale': cfg.scale})
+    with laspy.open(cfg.cloud_filename) as input_las:
+        num_points = input_las.header.point_count
+        logging.info(f'Reading {cfg.cloud_filename}')
+        logging.info(f'Points from header: {num_points}')
 
-        logging.info('Processing...')
-        with multiprocessing.Pool(processes=cfg.threads if cfg.threads else multiprocessing.cpu_count()) as pool:
-            # call with multiprocessing
-            for _ in tqdm(pool.map(normalise, kwargs_list), total=len(kwargs_list)):
-                pass
+        num_chunks = num_points // cfg.chunk_size + 1
+        for i, chunk in enumerate(input_las.chunk_iterator(cfg.chunk_size)):
+            logging.info(f'Processing chunk {i}/{num_chunks}')
+            # load data from chunk
+            points = np.array([chunk.x, chunk.y, chunk.z]).T
+            objects = np.array(chunk.hitObjectId)
+
+            # create shared array across processes
+            points_raw = RawArray('d', points.size)
+            objects_raw = RawArray('i', objects.size)
+
+            # wrap array for easier manipulation
+            points_numpy = np.frombuffer(points_raw, dtype=np.float64).reshape(points.shape)
+            objects_numpy = np.frombuffer(objects_raw, dtype=np.int32).reshape(objects.shape)
+
+            # copy data to shared array
+            np.copyto(points_numpy, points)
+            np.copyto(objects_numpy, objects)
+
+            with Pool(processes=cfg.threads if cfg.threads else cpu_count(), initializer=init_worker,
+                      initargs=(points_raw, objects_raw)) as pool:
+                for _ in tqdm(pool.imap_unordered(normalise, enumerate(filenames)), total=len(filenames)):
+                    pass
 
 
 if __name__ == '__main__':
