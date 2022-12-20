@@ -35,7 +35,7 @@ threads: 32
 quiet: false
 
 # normalisation settings
-chunk_size: 100000000
+chunk_size: 500000000
 
 # hydra settings
 hydra:

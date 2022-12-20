@@ -99,7 +99,7 @@ def normalise_multirun(cfg: DictConfig):
 
         num_chunks = num_points // cfg.chunk_size + 1
         for i, chunk in enumerate(input_las.chunk_iterator(cfg.chunk_size)):
-            logging.info(f'Processing chunk {i}/{num_chunks}')
+            logging.info(f'Processing chunk {i+1}/{num_chunks}')
             # load data from chunk
             points = np.array([chunk.x, chunk.y, chunk.z]).T
             objects = np.array(chunk.hitObjectId)
