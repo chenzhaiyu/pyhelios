@@ -14,12 +14,16 @@ import hydra
 from omegaconf import DictConfig
 
 
+# create logger
+logger = logging.getLogger('Simulate')
+
+
 def create_survey(cfg: DictConfig):
     """
     Create survey file.
     """
     # create survey XML
-    logging.info('creating survey XML...')
+    logger.info('Creating survey XML...')
     xml_element = lxml.builder.ElementMaker()
     xml_document = xml_element.document
     xml_global_platform_settings = xml_element.platformSettings
@@ -85,7 +89,7 @@ def create_scene(cfg: DictConfig):
     """
     Create scene file.
     """
-    logging.info('creating scene XML...')
+    logger.info('Creating scene XML...')
     # create scene XML
     xml_element = lxml.builder.ElementMaker()
     xml_document = xml_element.document
@@ -128,6 +132,8 @@ def simulate(cfg: DictConfig):
     # create scene
     if cfg.create_scene:
         create_scene(cfg)
+    else:
+        logger.warning('Skipping scene XML creation...')
 
     # run simulation
     if cfg.quiet:

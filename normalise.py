@@ -15,6 +15,9 @@ import hydra
 from omegaconf import DictConfig
 from tqdm import tqdm
 
+# create logger
+logger = logging.getLogger('Simulate')
+
 # global dict storing variables passed from initializer
 var_dict = {}
 
@@ -94,12 +97,12 @@ def normalise_multirun(cfg: DictConfig):
 
     with laspy.open(cfg.cloud_filename) as input_las:
         num_points = input_las.header.point_count
-        logging.info(f'Reading {cfg.cloud_filename}')
-        logging.info(f'Points from header: {num_points}')
+        logger.info(f'Reading {cfg.cloud_filename}')
+        logger.info(f'Points from header: {num_points}')
 
         num_chunks = num_points // cfg.chunk_size + 1
         for i, chunk in enumerate(input_las.chunk_iterator(cfg.chunk_size)):
-            logging.info(f'Processing chunk {i+1}/{num_chunks}')
+            logger.info(f'Processing chunk {i+1}/{num_chunks}')
             # load data from chunk
             points = np.array([chunk.x, chunk.y, chunk.z]).T
             objects = np.array(chunk.hitObjectId)

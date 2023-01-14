@@ -1,40 +1,21 @@
-# directories and paths
+# Default configuration for the project.
+# Values can be overriden by respective dataset configurations.
+
+# default settings
+defaults:
+  - _self_
+  - dataset: munich
+  - override hydra/job_logging: custom
+  - override hydra/hydra_logging: colorlog
+
+# paths settings
 helios_executable: '/workspace/envs/helios/helios'
-las2las_executable: '/workspace/envs/lastool/las2las64'
 root_dir: '${hydra:runtime.cwd}'
-dataset_name: 'munich'
-input_dir: '/workspace/data/munich/obj/instances_LocalCRS/'
-output_dir: '${root_dir}/outputs/${dataset_name}_als/'
-object_suffix: '.obj'
-cloud_filename: '${output_dir}/2022-12-09_18-07-34/stripmission_points.las'
-
-# survey settings
-create_survey: true
-move_speed: 70
-pulse_frequency: 1500000
-scan_angle: 30
-scan_frequency: 150
-time_interval: 0.01
-platform: 'sr22'
-scanner: 'leica_hyperion-ii'
-bbox_min: [-13020.6, -10139.05]
-bbox_max: [13020.6, 10139.05]
-strip_interval: 160
-flight_height: 400
-
-# scene settings
-create_scene: false
-scale: 1  # 1000 for Helsinki
-offset: 0;0;0
-# Munich Global: Min: (676042.210000, 5326481.160000, 481.400000), Max: (702063.376000, 5346739.302000, 802.890000)
-# Munich Local: Min: (-13010.6, -10129.05, -106.745), Max: (13010.6, 10129.05, 106.745)
 
 # runtime settings
 seed: 1117
 threads: 32
 quiet: false
-
-# normalisation settings
 chunk_size: 500000000
 
 # hydra settings
@@ -42,6 +23,3 @@ hydra:
   run:
     dir: '${output_dir}'
   verbose: false
-defaults:
-  - override hydra/job_logging: colorlog
-  - override hydra/hydra_logging: colorlog
