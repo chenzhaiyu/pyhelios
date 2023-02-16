@@ -1,0 +1,25 @@
+# @package _global_
+
+# path settings
+dataset_name: 'berlin'
+input_dir: '/workspace/data/berlin/obj/instances_localCRS/'
+output_dir: '${root_dir}/outputs/${dataset_name}_als/'
+object_suffix: '.obj'
+cloud_filename: '${output_dir}/2023-01-14_12-21-10/stripmission_points.las'
+
+# survey settings
+create_survey: true
+create_scene: true
+move_speed: 70
+pulse_frequency: 1500000
+scan_angle: 40
+scan_frequency: 150
+time_interval: 0.01
+platform: 'sr22'
+scanner: 'leica_hyperion-ii'
+bbox_min: [-11564.8, -11017.1]
+bbox_max: [11564.8, 11017.1]
+strip_interval: 320
+flight_height: 380
+scale: 1
+offset: 0;0;0
