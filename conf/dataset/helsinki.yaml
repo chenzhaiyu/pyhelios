@@ -5,7 +5,7 @@ dataset_name: 'helsinki'
 input_dir: '/workspace/data/helsinki/helsinki_entire/obj/instances_localCRS/'
 output_dir: '${root_dir}/outputs/${dataset_name}_als/'
 object_suffix: '.obj'
-cloud_filename: '${output_dir}/2022-12-09_18-07-34/stripmission_points.las'
+cloud_filename: '${output_dir}/2023-01-14_12-21-10/stripmission_points.las'
 
 # survey settings
 create_survey: true

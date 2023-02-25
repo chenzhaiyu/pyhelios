@@ -62,6 +62,8 @@ def normalise(args):
         filename = Path(filename)
         filename_mesh = (filename.parent.parent.parent / 'mesh_normalised' / filename.stem).with_suffix('.obj')
         filename_pts = (filename.parent.parent.parent / 'cloud_normalised' / filename.stem).with_suffix('.npy')
+        filename_mesh.parent.mkdir(parents=True, exist_ok=True)
+        filename_pts.parent.mkdir(parents=True, exist_ok=True)
 
         # load data
         pts = trimesh.PointCloud(np.frombuffer(var_dict['points'], dtype=np.float64).reshape((-1, 3))[objects])
