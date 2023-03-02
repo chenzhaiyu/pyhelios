@@ -50,9 +50,9 @@ def get_transform(mesh):
     return translation, scale_trafo
 
 
-def normalise(args):
+def normalise_cloud_and_mesh(args):
     """
-    Single-run normalisation with laspy.
+    Single-run normalisation for cloud and mesh with laspy.
     args: (index, filename)
     """
     index, filename = args
@@ -70,7 +70,11 @@ def normalise(args):
         mesh = trimesh.load(filename)
 
         # normalise
-        translation, scale_trafo = get_transform(mesh)
+        try:
+            translation, scale_trafo = get_transform(mesh)
+        except:
+            logger.error(f'error with file: {filename}')
+            exit(1)
         mesh = apply_transform(mesh, translation, scale_trafo)  # as-is normalised
         pts = apply_transform(pts, translation, scale_trafo)
 
@@ -85,8 +89,33 @@ def normalise(args):
             np.save(str(filename_pts), pts.vertices)
 
 
+def normalise_mesh(args):
+    """
+    Single-run normalisation for mesh.
+    args: filename
+    """
+    filename = args
+    filename = Path(filename)
+    filename_mesh = (filename.parent.parent.parent / 'mesh_normalised' / filename.stem).with_suffix('.obj')
+    filename_mesh.parent.mkdir(parents=True, exist_ok=True)
+
+    # load data
+    mesh = trimesh.load(filename)
+
+    # normalise
+    try:
+        translation, scale_trafo = get_transform(mesh)
+    except:
+        logger.error(f'error with file: {filename}')
+        exit(1)
+    mesh = apply_transform(mesh, translation, scale_trafo)  # as-is normalised
+
+    # save data
+    mesh.export(filename_mesh)
+
+
 @hydra.main(config_path='./conf', config_name='config', version_base='1.2')
-def normalise_multirun(cfg: DictConfig):
+def normalise_cloud_and_mesh_multirun(cfg: DictConfig):
     """
     Normalise point clouds and corresponding meshes with laspy and multiprocessing.
     """
@@ -123,9 +152,23 @@ def normalise_multirun(cfg: DictConfig):
 
             with Pool(processes=cfg.threads if cfg.threads else cpu_count(), initializer=init_worker,
                       initargs=(points_raw, objects_raw)) as pool:
-                for _ in tqdm(pool.imap_unordered(normalise, enumerate(filenames)), total=len(filenames)):
+                for _ in tqdm(pool.imap_unordered(normalise_cloud_and_mesh, enumerate(filenames)), total=len(filenames)):
                     pass
 
 
+@hydra.main(config_path='./conf', config_name='config', version_base='1.2')
+def normalise_mesh_multirun(cfg: DictConfig):
+    """
+    Normalise meshes with multiprocessing.
+    """
+    # listing by glob.glob() is with arbitrary order and is OS-specific
+    filenames = glob.glob(f'{os.path.join(cfg.input_dir, "*" + cfg.object_suffix)}')
+
+    with Pool(processes=cfg.threads if cfg.threads else cpu_count()) as pool:
+        for _ in tqdm(pool.imap_unordered(normalise_mesh, filenames), total=len(filenames)):
+            pass
+
+
 if __name__ == '__main__':
-    normalise_multirun()
+    normalise_cloud_and_mesh_multirun()
+
